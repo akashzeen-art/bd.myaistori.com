@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styles from "./TopStories.module.css";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useMobileGate } from "../contexts/MobileGateContext";
 import { translations } from "../translations/index";
 import StoryModal from "./StoryModal";
 
@@ -18,6 +19,13 @@ const TopStories = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalCategory, setModalCategory] = useState(null);
   const [modalTitle, setModalTitle] = useState(null);
+  const { requireMobile } = useMobileGate();
+
+  const openStory = (story) => requireMobile(() => {
+    setModalCategory(story.categoryKey);
+    setModalTitle(story.title);
+    setModalOpen(true);
+  });
 
   const topStories = [
     {
@@ -98,11 +106,7 @@ const TopStories = () => {
               <div
                 key={story.id}
                 className={styles.storyCard}
-                onClick={() => {
-                  setModalCategory(story.categoryKey);
-                  setModalTitle(story.title);
-                  setModalOpen(true);
-                }}
+                onClick={() => openStory(story)}
               >
                 <div className={styles.rankBadge}>#{index + 1}</div>
                 <div className={styles.imageContainer}>
@@ -136,9 +140,7 @@ const TopStories = () => {
                     className={styles.readButton}
                     onClick={(e) => {
                       e.stopPropagation();
-                      setModalCategory(story.categoryKey);
-                      setModalTitle(story.title);
-                      setModalOpen(true);
+                      openStory(story);
                     }}
                   >
                     {t.topStories.readStory}

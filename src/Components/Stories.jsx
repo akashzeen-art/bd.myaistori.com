@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import StoryModal from "./StoryModal";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useMobileGate } from "../contexts/MobileGateContext";
 import { translations } from "../translations/index";
 import styles from "./Stories.module.css";
 const HERO_VIDEO_URL = "https://vz-347babc2-229.b-cdn.net/f608bb0a-b3a1-4cd2-aa8d-2e170a217380/play_480p.mp4";
-import Navbar from "./Navbar";
 
 // Import all category images
 import actionJpg from "../assets/Images/action.jpg";
@@ -60,6 +60,7 @@ import threeWishesImg from "../assets/Images/FairyTale/The-Three-Wishes.jpg";
 
 const Stories = () => {
   const { language } = useLanguage();
+  const { requireMobile } = useMobileGate();
   const t = translations[language] || translations.EN;
   const [selectedCategory, setSelectedCategory] = useState("action");
 
@@ -388,7 +389,6 @@ const Stories = () => {
 
   return (
     <>
-      <Navbar />
       <video className={styles.videoBackground} src={HERO_VIDEO_URL} autoPlay muted loop playsInline />
       <div className={styles.videoOverlay} />
       <div className={styles.storiesContainer}>
@@ -426,7 +426,7 @@ const Stories = () => {
               <div
                 key={story.id}
                 className={styles.storyCard}
-                onClick={() => { setModalCategory(story.category); setModalTitle(story.title); setModalOpen(true); }}
+                onClick={() => requireMobile(() => { setModalCategory(story.category); setModalTitle(story.title); setModalOpen(true); })}
               >
                 <div className={styles.storyImageContainer}>
                   <img

@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
+﻿import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import styles from "./StoryModal.module.css";
 import { fetchStoriesByCategory, pickMatchingStory } from "../api/stories";
 import { useLanguage } from "../contexts/LanguageContext";
+import { translations } from "../translations/index";
 
 const DEFAULT_TYPING_SPEED_MS = 14;
 
@@ -22,38 +23,10 @@ const joinStoryText = (story) => {
 const VOICE_OPTIONS = [
   { id: "default",      label: "Default Voice",                   group: "EN", lang: null,    gender: null, nameMatch: null                    },
   { id: "en-us",        label: "Google US English (en-US)",        group: "EN", lang: "en-US", gender: null, nameMatch: "Google US English"     },
-  { id: "es",           label: "Google Spanish (es-ES)",           group: "ES", lang: "es-ES", gender: null, nameMatch: "Google español"        },
-  { id: "fr",           label: "Google French (fr-FR)",            group: "FR", lang: "fr-FR", gender: null, nameMatch: "Google français"       },
-  { id: "cs",           label: "Czech (cs-CZ)",                    group: "CS", lang: "cs-CZ", gender: null, nameMatch: null                    },
-  { id: "pl",           label: "Polish (pl-PL)",                   group: "PL", lang: "pl-PL", gender: null, nameMatch: null                    },
-  { id: "pt",           label: "Portuguese (pt-PT)",               group: "PT", lang: "pt-PT", gender: null, nameMatch: null                    },
+  { id: "bn",           label: "Bangla (bn-BD)",                   group: "BN", lang: "bn-BD", gender: null, nameMatch: null                    },
 ];
 
-const LANG_TO_DEFAULT_VOICE = { EN: "en-us", FR: "fr", ES: "es", CS: "cs", PL: "pl", PT: "pt" };
-const LANG_CODE  = { EN: "en", FR: "fr", ES: "es", AR: "ar", CS: "cs", PL: "pl", PT: "pt" };
-const LANG_BCP47 = { EN: "en-US", FR: "fr-FR", ES: "es-ES", AR: "ar-SA", CS: "cs-CZ", PL: "pl-PL", PT: "pt-PT" };
-
-// ─── pre-written story text for non-English TTS ──────────────────────────────
-// Browser TTS needs actual text in the target language to speak correctly.
-
-const SPEECH_TEXT = {
-  fr: `Dans le cœur de la ville, une détective nommée Claire découvrit une lettre mystérieuse glissée sous sa porte. L'enveloppe ne portait aucun nom, aucune adresse — seulement un symbole gravé dans la cire rouge sombre.\n\nElle ouvrit la lettre avec précaution. Les mots à l'intérieur étaient écrits à la main, d'une écriture tremblante mais précise. Quelqu'un avait disparu. Quelqu'un d'important. Et cette personne avait laissé des indices que seule Claire pouvait comprendre.\n\nElle enfila son manteau et sortit dans la nuit froide de Paris. Les rues étaient désertes, les lampadaires projetaient des ombres longues sur les pavés mouillés. Chaque pas la rapprochait d'une vérité qu'elle n'était peut-être pas prête à affronter.\n\nAu bout d'une ruelle sombre, elle trouva la porte indiquée dans la lettre. Elle frappa trois fois. Un silence. Puis la porte s'ouvrit lentement, révélant un visage qu'elle reconnut immédiatement — son ancien partenaire, disparu depuis deux ans.\n\nIl lui sourit tristement. Il avait des réponses. Mais les réponses allaient tout changer. Claire prit une grande inspiration et entra, sachant que sa vie ne serait plus jamais la même après cette nuit.`,
-
-  es: `En el corazón de la ciudad, una detective llamada Clara descubrió una carta misteriosa deslizada bajo su puerta. El sobre no tenía nombre ni dirección, solo un símbolo grabado en cera roja oscura.\n\nAbrió la carta con cuidado. Las palabras dentro estaban escritas a mano, con una letra temblorosa pero precisa. Alguien había desaparecido. Alguien importante. Y esa persona había dejado pistas que solo Clara podía entender.\n\nSe puso el abrigo y salió a la fría noche de la ciudad. Las calles estaban desiertas, las farolas proyectaban largas sombras sobre los adoquines mojados. Cada paso la acercaba a una verdad que quizás no estaba lista para enfrentar.\n\nAl final de un callejón oscuro, encontró la puerta indicada en la carta. Llamó tres veces. Un silencio. Luego la puerta se abrió lentamente, revelando un rostro que reconoció de inmediato: su antiguo compañero, desaparecido hace dos años.\n\nLe sonrió tristemente. Tenía respuestas. Pero las respuestas lo cambiarían todo. Clara respiró profundo y entró, sabiendo que su vida nunca volvería a ser la misma después de esa noche.`,
-
-  ar: `في قلب المدينة، اكتشفت المحققة سارة رسالة غامضة مُدسَّة تحت بابها. لم يكن على الظرف اسم ولا عنوان، بل مجرد رمز منقوش في شمع أحمر داكن.\n\nفتحت الرسالة بحذر. كانت الكلمات بداخلها مكتوبة بخط اليد، بخط مرتجف لكنه دقيق. كان شخص ما قد اختفى. شخص مهم. وقد ترك هذا الشخص أدلة لا تستطيع فهمها سوى سارة.\n\nارتدت معطفها وخرجت إلى الليل البارد. كانت الشوارع مقفرة، وكانت أعمدة الإنارة تلقي بظلال طويلة على الأرصفة المبللة. كل خطوة كانت تقربها من حقيقة ربما لم تكن مستعدة لمواجهتها.\n\nفي نهاية زقاق مظلم، وجدت الباب المشار إليه في الرسالة. طرقت ثلاث مرات. صمت. ثم فُتح الباب ببطء، ليكشف عن وجه عرفته على الفور، وجه شريكها القديم الذي اختفى منذ عامين.\n\nابتسم لها بحزن. كانت لديه إجابات. لكن تلك الإجابات ستغير كل شيء. أخذت سارة نفساً عميقاً ودخلت، وهي تعلم أن حياتها لن تكون كما كانت بعد تلك الليلة أبداً.`,
-};
-
-const SPEECH_TEXT_EXTRA = {
-  cs: `V srdci města detektivka Klára objevila záhadný dopis podstrčený pod její dveře. Obálka nenesla žádné jméno ani adresu — pouze symbol vyražený do tmavě červeného vosku.\n\nOpatrně dopis otevřela. Slova uvnitř byla psána rukou, chvějícím se, ale přesným písmem. Někdo zmizel. Někdo důležitý. A tato osoba zanechala stopy, které dokázala rozluštit jen Klára.\n\nOblékla si kabát a vyšla do chladné noci. Ulice byly pusté, pouliční lampy vrhaly dlouhé stíny na mokré dlažební kameny. Každý krok ji přibližoval k pravdě, na kterou možná nebyla připravena.\n\nNa konci temné uličky našla dveře zmíněné v dopise. Třikrát zaklepala. Ticho. Pak se dveře pomalu otevřely a odhalily tvář, kterou okamžitě poznala — jejího bývalého partnera, který zmizel před dvěma lety.\n\nUsmál se na ni smutně. Měl odpovědi. Ale ty odpovědi měly změnit vše. Klára se zhluboka nadechla a vstoupila dovnitř, vědomá si, že její život už nikdy nebude stejný.`,
-  pl: `W sercu miasta detektyw Klara odkryła tajemniczy list wsunięty pod jej drzwi. Koperta nie miała żadnego imienia ani adresu — tylko symbol wyryty w ciemnoczerwonym wosku.\n\nOstrożnie otworzyła list. Słowa w środku były napisane odręcznie, drżącym, ale precyzyjnym pismem. Ktoś zniknął. Ktoś ważny. I ta osoba zostawiła wskazówki, które tylko Klara mogła zrozumieć.\n\nWłożyła płaszcz i wyszła w chłodną noc. Ulice były opustoszałe, latarnie rzucały długie cienie na mokre bruki. Każdy krok przybliżał ją do prawdy, na którą może nie była gotowa.\n\nNa końcu ciemnej uliczki znalazła drzwi wskazane w liście. Zapukała trzy razy. Cisza. Potem drzwi powoli się otworzyły, odsłaniając twarz, którą natychmiast rozpoznała — jej byłego partnera, który zniknął dwa lata temu.\n\nUśmiechnął się do niej smutno. Miał odpowiedzi. Ale te odpowiedzi miały zmienić wszystko. Klara wzięła głęboki oddech i weszła, wiedząc, że jej życie nigdy nie będzie takie samo.`,
-  pt: `No coração da cidade, a detetive Clara descobriu uma carta misteriosa deslizada sob sua porta. O envelope não tinha nome nem endereço — apenas um símbolo gravado em cera vermelha escura.\n\nEla abriu a carta com cuidado. As palavras dentro estavam escritas à mão, com uma letra trêmula mas precisa. Alguém havia desaparecido. Alguém importante. E essa pessoa havia deixado pistas que só Clara poderia entender.\n\nEla colocou o casaco e saiu para a noite fria. As ruas estavam desertas, os postes projetavam longas sombras sobre as calçadas molhadas. Cada passo a aproximava de uma verdade que talvez não estivesse pronta para enfrentar.\n\nNo final de um beco escuro, ela encontrou a porta indicada na carta. Bateu três vezes. Um silêncio. Então a porta se abriu lentamente, revelando um rosto que ela reconheceu imediatamente — seu antigo parceiro, desaparecido há dois anos.\n\nEle sorriu para ela tristemente. Tinha respostas. Mas as respostas mudariam tudo. Clara respirou fundo e entrou, sabendo que sua vida nunca mais seria a mesma.`,
-};
-
-const getSpeechText = (englishText, langCode) => {
-  if (!langCode || langCode === "en") return englishText;
-  return SPEECH_TEXT[langCode] || SPEECH_TEXT_EXTRA[langCode] || englishText;
-};
+const BENGALI_SCRIPT = /[\u0980-\u09FF]/;
 
 // ─── voice resolution ─────────────────────────────────────────────────────────
 /**
@@ -116,9 +89,90 @@ const resolveVoice = (browserVoices, opt) => {
 
 // ─── speech helpers ───────────────────────────────────────────────────────────
 
+// Most Windows/desktop browsers ship without a Bangla speech voice, so Bangla
+// text is read with Google's online TTS instead. It only accepts ~200 chars per
+// request and rejects requests that carry a Referer header.
+const ONLINE_TTS_URL = "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob";
+const ONLINE_TTS_CHUNK = 180;
+let onlineSession = null;
+
+const splitForOnlineTts = (text) => {
+  const sentences = text.replace(/\s+/g, " ").match(/[^।.!?]+[।.!?]*/g) || [];
+  const chunks = [];
+  let current = "";
+  sentences.forEach((sentence) => {
+    let piece = sentence.trim();
+    while (piece.length > ONLINE_TTS_CHUNK) {
+      const cut = piece.lastIndexOf(" ", ONLINE_TTS_CHUNK);
+      const at = cut > 0 ? cut : ONLINE_TTS_CHUNK;
+      if (current) { chunks.push(current); current = ""; }
+      chunks.push(piece.slice(0, at));
+      piece = piece.slice(at).trim();
+    }
+    const joined = current ? `${current} ${piece}` : piece;
+    if (joined.length > ONLINE_TTS_CHUNK) {
+      chunks.push(current);
+      current = piece;
+    } else {
+      current = joined;
+    }
+  });
+  if (current) chunks.push(current);
+  return chunks.filter(Boolean);
+};
+
+const loadWithoutReferrer = (audio, src) => {
+  const meta = document.createElement("meta");
+  meta.name = "referrer";
+  meta.content = "no-referrer";
+  document.head.appendChild(meta);
+  const cleanup = () => meta.remove();
+  audio.addEventListener("loadedmetadata", cleanup, { once: true });
+  audio.addEventListener("error", cleanup, { once: true });
+  audio.src = src;
+  audio.load();
+};
+
+const speakOnline = (text, lang, rate) => {
+  const chunks = splitForOnlineTts(text);
+  const session = { audio: new Audio(), cancelled: false, index: 0 };
+  onlineSession = session;
+  const { audio } = session;
+
+  const playNext = () => {
+    if (session.cancelled || session.index >= chunks.length) return;
+    const chunk = chunks[session.index++];
+    loadWithoutReferrer(audio, `${ONLINE_TTS_URL}&tl=${lang}&q=${encodeURIComponent(chunk)}`);
+    audio.playbackRate = typeof rate === "number" ? rate : 1;
+    audio.play().catch((e) => console.warn("Online TTS error:", e));
+  };
+
+  audio.onended = playNext;
+  audio.onerror = playNext;
+  playNext();
+};
+
 const stopSpeaking = () => {
+  if (onlineSession) {
+    onlineSession.cancelled = true;
+    onlineSession.audio.pause();
+    onlineSession.audio.removeAttribute("src");
+    onlineSession = null;
+  }
   if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
+};
+
+const pauseSpeaking = () => {
+  if (onlineSession) onlineSession.audio.pause();
+  if (window.speechSynthesis?.speaking) window.speechSynthesis.pause();
+};
+
+const resumeSpeaking = () => {
+  if (onlineSession && onlineSession.audio.paused && onlineSession.audio.src) {
+    onlineSession.audio.play().catch(() => {});
+  }
+  if (window.speechSynthesis?.paused) window.speechSynthesis.resume();
 };
 
 const speakText = (text, voice, langBcp47, rate, pitch) => {
@@ -224,8 +278,6 @@ const useSpeechVoices = () => {
       // Log ALL available voices so we can see exactly what the browser has
       console.log("=== ALL AVAILABLE BROWSER VOICES ===");
       v.forEach((voice, i) => console.log(`${i}: ${voice.name} | ${voice.lang} | local: ${voice.localService}`));
-      console.log("Arabic voices:", v.filter(x => x.lang.toLowerCase().startsWith("ar")).map(x => `${x.name} (${x.lang})`));
-      console.log("French voices:", v.filter(x => x.lang.toLowerCase().startsWith("fr")).map(x => `${x.name} (${x.lang})`));
     }
   }, []);
 
@@ -235,7 +287,8 @@ const useSpeechVoices = () => {
 // ─── StoryModal ───────────────────────────────────────────────────────────────
 
 const StoryModal = ({ isOpen, onClose, category, preferredTitle, rawText }) => {
-  const { language, changeLanguage } = useLanguage();
+  const { language } = useLanguage();
+  const t = translations[language] || translations.EN;
 
   const [isLoading,        setIsLoading]        = useState(false);
   const [stories,          setStories]          = useState([]);
@@ -254,6 +307,9 @@ const StoryModal = ({ isOpen, onClose, category, preferredTitle, rawText }) => {
 
   const typingTimerRef      = useRef(null);
   const currentUtteranceRef = useRef(null);
+  const loadedLanguageRef   = useRef(null);
+  const activeIndexRef      = useRef(0);
+  activeIndexRef.current = activeIndex;
 
   // Active VOICE_OPTIONS entry
   const activeVoiceOption = useMemo(
@@ -267,38 +323,20 @@ const StoryModal = ({ isOpen, onClose, category, preferredTitle, rawText }) => {
     [voices, activeVoiceOption]
   );
 
-  // ── two-way sync: voice → language ──────────────────────────────────────────
   const handleVoiceChange = useCallback((voiceId) => {
     setSelectedVoiceId(voiceId);
     localStorage.setItem("story_voice_id", voiceId);
-    const opt = VOICE_OPTIONS.find(v => v.id === voiceId);
-    if (opt && opt.group !== language) {
-      console.log("Voice changed → language auto-switching to:", opt.group);
-      changeLanguage(opt.group);
-    }
     // If voice is on, restart speech with new voice immediately
     if (speakEnabled) {
       stopSpeaking();
       setSpeakEnabled(false); // will re-enable via effect after state settles
     }
-  }, [language, changeLanguage, speakEnabled]);
-
-  // ── two-way sync: language → voice ──────────────────────────────────────────
-  useEffect(() => {
-    const targetId = LANG_TO_DEFAULT_VOICE[language];
-    if (!targetId) return;
-    const current = VOICE_OPTIONS.find(v => v.id === selectedVoiceId);
-    if (current?.group !== language) {
-      console.log("Language changed → voice auto-switching to:", targetId);
-      setSelectedVoiceId(targetId);
-      localStorage.setItem("story_voice_id", targetId);
-    }
-  }, [language]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [speakEnabled]);
 
   // ── story text ───────────────────────────────────────────────────────────────
   const activeStory = generatedStories[activeIndex]
     || stories[activeIndex]
-    || (rawText ? { title: preferredTitle || "Story", dsc: rawText } : null);
+    || (rawText ? { title: preferredTitle || t.storyModal.story, dsc: rawText } : null);
 
   const fullText = useMemo(() => {
     if (generatedStories[activeIndex]) return generatedStories[activeIndex].dsc;
@@ -307,7 +345,10 @@ const StoryModal = ({ isOpen, onClose, category, preferredTitle, rawText }) => {
 
   // ── load stories ─────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      loadedLanguageRef.current = null;
+      return;
+    }
     let mounted = true;
     setIsLoading(true);
     setTypedText("");
@@ -318,15 +359,14 @@ const StoryModal = ({ isOpen, onClose, category, preferredTitle, rawText }) => {
     if (rawText) {
       setStories([]);
       setActiveIndex(0);
-      setGeneratedStories([{ title: preferredTitle || "Story", dsc: rawText }]);
+      setGeneratedStories([{ title: preferredTitle || t.storyModal.story, dsc: rawText }]);
       setIsLoading(false);
       setOriginalPrompt(preferredTitle || "");
       return;
     }
 
     setGeneratedStories([]);
-    const langCode = LANG_CODE[language] || "en";
-    fetchStoriesByCategory(category, langCode)
+    fetchStoriesByCategory(category, language.toLowerCase())
       .then((list) => {
         if (!mounted) return;
         const normalize = (s) => ({
@@ -337,6 +377,15 @@ const StoryModal = ({ isOpen, onClose, category, preferredTitle, rawText }) => {
                     s?.content || s?.text || s?.body || "",
         });
         const ordered = Array.isArray(list) ? list.map(normalize) : [];
+        // English and Bangla story lists share the same order, so a language switch
+        // while the modal is open keeps the reader on the same story.
+        const languageSwitched = loadedLanguageRef.current && loadedLanguageRef.current !== language;
+        loadedLanguageRef.current = language;
+        if (languageSwitched && activeIndexRef.current < ordered.length) {
+          setStories(ordered);
+          setActiveIndex(activeIndexRef.current);
+          return;
+        }
         const first = pickMatchingStory(ordered, preferredTitle);
         const startIndex = first ? ordered.findIndex(s => s === first) : 0;
         setStories(ordered);
@@ -347,14 +396,14 @@ const StoryModal = ({ isOpen, onClose, category, preferredTitle, rawText }) => {
     return () => { mounted = false; };
   }, [isOpen, category, preferredTitle, rawText, language]);
 
-  // ── reset typing + speech when story/language changes ────────────────────────
+  // ── reset typing + speech when story changes ─────────────────────────────────
   useEffect(() => {
     if (!isOpen) return;
     setTypedText("");
     setIsTyping(true);
     stopSpeaking();
     setSpeakEnabled(false);
-  }, [fullText, language, isOpen]);
+  }, [fullText, isOpen]);
 
   // ── typing animation ─────────────────────────────────────────────────────────
   useEffect(() => {
@@ -369,15 +418,21 @@ const StoryModal = ({ isOpen, onClose, category, preferredTitle, rawText }) => {
   useEffect(() => {
     if (!isOpen || !speakEnabled || !fullText) return;
 
-    const voiceGroup = activeVoiceOption.group || "EN";
-    const langCode   = LANG_CODE[voiceGroup]  || "en";
-    const langBcp47  = activeVoiceOption.lang || LANG_BCP47[voiceGroup] || "en-US";
-    const text       = getSpeechText(fullText, langCode);
+    const isBangla  = BENGALI_SCRIPT.test(fullText);
+    const langBcp47 = isBangla ? "bn-BD" : (activeVoiceOption.lang || "en-US");
 
     stopSpeaking();
-    currentUtteranceRef.current = speakText(text, resolvedVoice, langBcp47, speechRate, speechPitch);
+    if (isBangla) {
+      const banglaVoice = resolvedVoice?.lang?.toLowerCase().startsWith("bn")
+        ? resolvedVoice
+        : resolveVoice(voices, VOICE_OPTIONS.find(v => v.id === "bn"));
+      if (banglaVoice) speakText(fullText, banglaVoice, langBcp47, speechRate, speechPitch);
+      else speakOnline(fullText, "bn", speechRate);
+    } else {
+      currentUtteranceRef.current = speakText(fullText, resolvedVoice, langBcp47, speechRate, speechPitch);
+    }
     return () => stopSpeaking();
-  }, [speakEnabled, resolvedVoice, speechRate, speechPitch, fullText, language, isOpen, activeVoiceOption]);
+  }, [speakEnabled, resolvedVoice, voices, speechRate, speechPitch, fullText, isOpen, activeVoiceOption]);
 
   // ── handlers ─────────────────────────────────────────────────────────────────
   const handleClose = () => {
@@ -390,10 +445,10 @@ const StoryModal = ({ isOpen, onClose, category, preferredTitle, rawText }) => {
     if (isTyping) {
       setIsTyping(false);
       clearTimeout(typingTimerRef.current);
-      if (window.speechSynthesis?.speaking) window.speechSynthesis.pause();
+      pauseSpeaking();
     } else {
       setIsTyping(true);
-      if (window.speechSynthesis?.paused) window.speechSynthesis.resume();
+      resumeSpeaking();
     }
   };
 
@@ -419,8 +474,7 @@ const StoryModal = ({ isOpen, onClose, category, preferredTitle, rawText }) => {
       stopSpeaking();
       try {
         const { sendStoryPrompt } = await import("../api/stories");
-        const langCode = LANG_CODE[language] || "en";
-        const newStory = await sendStoryPrompt(originalPrompt, langCode);
+        const newStory = await sendStoryPrompt(originalPrompt, language.toLowerCase());
         if (newStory) {
           setGeneratedStories(prev => {
             const updated = [...prev, { title: originalPrompt, dsc: newStory }];
@@ -456,16 +510,16 @@ const StoryModal = ({ isOpen, onClose, category, preferredTitle, rawText }) => {
                 onChange={(e) => handleVoiceChange(e.target.value)}
               >
                 {VOICE_OPTIONS.map((v) => (
-                  <option key={v.id} value={v.id}>{v.label}</option>
+                  <option key={v.id} value={v.id}>{v.id === "default" ? t.storyModal.defaultVoice : v.label}</option>
                 ))}
               </select>
-              <button className={styles.controlBtn} onClick={refreshVoices}>Reload</button>
+              <button className={styles.controlBtn} onClick={refreshVoices}>{t.storyModal.reload}</button>
             </>
           ) : (
-            <div className={styles.label}>Voice not supported in this browser</div>
+            <div className={styles.label}>{t.storyModal.voiceNotSupported}</div>
           )}
           <div className={styles.controlGroup}>
-            <label className={styles.label}>Pitch</label>
+            <label className={styles.label}>{t.storyModal.pitch}</label>
             <input
               type="range" min="0.5" max="2" step="0.1"
               value={speechPitch}
@@ -482,18 +536,20 @@ const StoryModal = ({ isOpen, onClose, category, preferredTitle, rawText }) => {
 
         <div className={styles.header}>
           <div className={styles.titleArea}>
-            <div className={styles.categoryPill}>{String(category || "").toUpperCase()}</div>
-            <h3 className={styles.titleText}>{activeStory?.title || "Story"}</h3>
+            <div className={styles.categoryPill}>
+              {t.storyModal.categories[String(category || "").toLowerCase()] || String(category || "").toUpperCase()}
+            </div>
+            <h3 className={styles.titleText}>{activeStory?.title || t.storyModal.story}</h3>
             {activeStory?.subTitle && (
               <div className={styles.subtitleText}>{activeStory.subTitle}</div>
             )}
           </div>
-          <button className={styles.closeBtn} onClick={handleClose} aria-label="Close">✕</button>
+          <button className={styles.closeBtn} onClick={handleClose} aria-label={t.storyModal.close}>✕</button>
         </div>
 
         <div className={styles.contentArea}>
           {isLoading ? (
-            <div className={styles.loading}>Loading story…</div>
+            <div className={styles.loading}>{t.storyModal.loading}</div>
           ) : (
             <pre className={styles.storyText}>{typedText}</pre>
           )}
@@ -501,17 +557,17 @@ const StoryModal = ({ isOpen, onClose, category, preferredTitle, rawText }) => {
 
         <div className={styles.controls}>
           <button className={styles.controlBtn} onClick={handleTogglePlay}>
-            {isTyping ? "Pause" : "Play"}
+            {isTyping ? t.storyModal.pause : t.storyModal.play}
           </button>
-          <button className={styles.controlBtn} onClick={handleRestart}>Repeat</button>
+          <button className={styles.controlBtn} onClick={handleRestart}>{t.storyModal.repeat}</button>
           <button
             className={`${styles.controlBtn} ${!speakEnabled ? styles.voiceHighlight : ""}`}
             onClick={handleSpeakToggle}
           >
-            {speakEnabled ? "🔊 Voice: On" : "🔇 Voice: Off"}
+            {speakEnabled ? `🔊 ${t.storyModal.voiceOn}` : `🔇 ${t.storyModal.voiceOff}`}
           </button>
           <div className={styles.controlGroup}>
-            <label className={styles.label}>Voice Rate</label>
+            <label className={styles.label}>{t.storyModal.voiceRate}</label>
             <input
               type="range" min="0.7" max="1.4" step="0.1"
               value={speechRate}

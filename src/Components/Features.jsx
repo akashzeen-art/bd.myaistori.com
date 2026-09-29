@@ -5,13 +5,16 @@ import {
   FaShieldAlt, FaBolt, FaGlobe, FaStar, FaPlay
 } from "react-icons/fa";
 import { FaWandMagicSparkles, FaWaveSquare } from "react-icons/fa6";
+import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useMobileGate } from "../contexts/MobileGateContext";
 import { translations } from "../translations/index";
 const HERO_VIDEO_URL = "https://vz-347babc2-229.b-cdn.net/f608bb0a-b3a1-4cd2-aa8d-2e170a217380/play_480p.mp4";
-import Navbar from "./Navbar";
 
 const Features = () => {
   const { language } = useLanguage();
+  const { requireMobile } = useMobileGate();
+  const navigate = useNavigate();
   const t = translations[language] || translations.EN;
 
   const features = [
@@ -33,7 +36,6 @@ const Features = () => {
   ];
   return (
     <>
-      <Navbar />
       <video className={styles.videoBackground} src={HERO_VIDEO_URL} autoPlay muted loop playsInline />
       <div className={styles.videoOverlay} />
       <main className={styles.page}>
@@ -43,7 +45,7 @@ const Features = () => {
           <h1 className={styles.title}>{t.features.heroTitle}</h1>
           <p className={styles.subtitle}>{t.features.heroSubtitle}</p>
           <div className={styles.heroButtons}>
-            <a href="/voice" className={styles.primaryBtn}>{t.features.startForFree}</a>
+            <a href="/voice" className={styles.primaryBtn} onClick={(e) => { e.preventDefault(); requireMobile(() => navigate("/voice")); }}>{t.features.startForFree}</a>
             <a href="/stories" className={styles.secondaryBtn}>{t.features.exploreStories}</a>
           </div>
         </div>
@@ -90,7 +92,7 @@ const Features = () => {
           <h3 className={styles.ctaTitle}>{t.features.readyToCreate}</h3>
           <p className={styles.ctaText}>{t.features.readyToCreateSubtitle}</p>
           <div className={styles.heroButtons}>
-            <a href="/voice" className={styles.primaryBtn}>{t.features.startForFree}</a>
+            <a href="/voice" className={styles.primaryBtn} onClick={(e) => { e.preventDefault(); requireMobile(() => navigate("/voice")); }}>{t.features.startForFree}</a>
             <a href="/faq" className={styles.secondaryBtn}>{t.features.questions}</a>
           </div>
         </div>

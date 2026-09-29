@@ -247,13 +247,33 @@
   }
 
   .footerContainer {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: center;
     gap: 30px;
     text-align: center;
   }
 
+  .leftContainer {
+    max-width: 100%;
+  }
+
+  .rightContainer {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+  }
+
   .brandSection {
     grid-column: 1;
+  }
+
+  .brandInfo {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .brandTagline {
+    transform: none;
   }
 
   .footerBottomContent {

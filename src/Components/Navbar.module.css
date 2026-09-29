@@ -70,23 +70,17 @@
   color: #ffffff !important;
 }
 
-.ctaButton {
-  background: linear-gradient(90deg, #001f3f, #003366);
-  color: #fff !important;
-  font-weight: 600;
-  font-size: 1rem;
-  padding: 7px 16px;
-  border-radius: 8px;
-  margin-left: 15px;
-  text-decoration: none;
+.toggler {
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  padding: 6px 10px;
 }
 
-.ctaButton:hover {
-  opacity: 0.9;
+.toggler:focus {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
 }
 
-.iconItem {
-  margin-left: 18px;
+.toggler :global(.navbar-toggler-icon) {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
 .icon {
@@ -170,10 +164,6 @@
     list-style: none;
   }
 
-  .iconItem {
-    margin: 0;
-  }
-
   .icon {
     font-size: 1.5rem;
   }
@@ -184,13 +174,10 @@
     padding: 6px 10px;
   }
 
-  .ctaButton {
-    width: 100%;
-    margin: 15px 0 0 0;
-    text-align: center;
-    padding: 10px 20px;
+  .profileBtn {
+    margin: 0;
   }
-  
+
   /* Ensure dropdown menu is visible on mobile */
   .dropdown-menu {
     background: rgba(0, 0, 0, 0.9);

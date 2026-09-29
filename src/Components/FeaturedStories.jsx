@@ -1,6 +1,8 @@
 import React, { useState, useRef } from "react";
 import StoryModal from "./StoryModal";
+import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useMobileGate } from "../contexts/MobileGateContext";
 import { translations } from "../translations/index";
 import styles from "./FeaturedStories.module.css";
 
@@ -20,6 +22,14 @@ const FeaturedStories = () => {
   const [modalCategory, setModalCategory] = useState(null);
   const [modalTitle, setModalTitle] = useState(null);
   const carouselRef = useRef(null);
+  const navigate = useNavigate();
+  const { requireMobile } = useMobileGate();
+
+  const openStory = (story) => requireMobile(() => {
+    setModalCategory(story.categoryKey);
+    setModalTitle(story.title);
+    setModalOpen(true);
+  });
 
   const featuredStories = [
     {
@@ -147,7 +157,7 @@ const FeaturedStories = () => {
                 <div
                   key={story.id}
                   className={styles.storyCard}
-                  onClick={() => { setModalCategory(story.categoryKey); setModalTitle(story.title); setModalOpen(true); }}
+                  onClick={() => openStory(story)}
                 >
                   <div className={styles.imageWrapper}>
                     <img
@@ -189,7 +199,7 @@ const FeaturedStories = () => {
                     <div className={styles.actionRow}>
                       <button
                         className={styles.readButton}
-                        onClick={(e) => { e.stopPropagation(); setModalCategory(story.categoryKey); setModalTitle(story.title); setModalOpen(true); }}
+                        onClick={(e) => { e.stopPropagation(); openStory(story); }}
                       >
                         {t.featuredStories.readNow}
                       </button>
@@ -230,7 +240,11 @@ const FeaturedStories = () => {
               {t.featuredStories.readyToCreateSubtitle}
             </p>
             <div className={styles.ctaButtons}>
-              <a href="/voice" className={styles.primaryButton}>
+              <a
+                href="/voice"
+                className={styles.primaryButton}
+                onClick={(e) => { e.preventDefault(); requireMobile(() => navigate("/voice")); }}
+              >
                 {t.featuredStories.startCreating}
               </a>
               <a href="/stories" className={styles.secondaryButton}>

@@ -3,12 +3,15 @@ import styles from "./StorySeries.module.css";
 import actionJpg from "../assets/Images/action.jpg";
 import fantasyJpg from "../assets/Images/fantasy.jpg";
 import scifiJpg from "../assets/Images/scifi.jpg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useMobileGate } from "../contexts/MobileGateContext";
 import { translations } from "../translations/index";
 
 const StorySeries = () => {
   const { language } = useLanguage();
+  const { requireMobile } = useMobileGate();
+  const navigate = useNavigate();
   const t = translations[language] || translations.EN;
   
   // Define the data for each story type
@@ -54,7 +57,11 @@ const StorySeries = () => {
               {t.storySeries.marketingDescription}
             </p>
             <button className={styles.startFreeBtn}>
-              <a className="text-decoration-none" href="/stories">   {t.storySeries.startCreatingStories}</a>
+              <a
+                className="text-decoration-none"
+                href="/stories"
+                onClick={(e) => { e.preventDefault(); requireMobile(() => navigate("/stories")); }}
+              >   {t.storySeries.startCreatingStories}</a>
            
             </button>
             <div className={styles.separator}></div>
@@ -78,7 +85,11 @@ const StorySeries = () => {
               <span className={styles.tvIcon}>📚</span>
               {t.storySeries.aiStoryGenerator}
             </div>
-            <a href="/voice" className={styles.getStartedBtn}>
+            <a
+              href="/voice"
+              className={styles.getStartedBtn}
+              onClick={(e) => { e.preventDefault(); requireMobile(() => navigate("/voice")); }}
+            >
               {t.storySeries.createNewStory}
             </a>
           </div>
@@ -105,7 +116,7 @@ const StorySeries = () => {
               <div
                 key={story.id}
                 className={`${styles.thumbnailCard} ${selectedStory.id === story.id ? styles.active : ''}`}
-                onClick={() => handleSelectStory(story.id)}
+                onClick={() => requireMobile(() => handleSelectStory(story.id))}
               >
                 <img
                   src={story.image}

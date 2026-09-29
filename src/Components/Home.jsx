@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import styles from "./Home.module.css";
 const HERO_VIDEO_URL = "https://vz-347babc2-229.b-cdn.net/f608bb0a-b3a1-4cd2-aa8d-2e170a217380/play_480p.mp4";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useMobileGate } from "../contexts/MobileGateContext";
 import { translations } from "../translations/index";
-import Navbar from "./Navbar";
 import TopStories from "./TopStories";
 import FeaturedStories from "./FeaturedStories";
 import StorySeries from "./StorySeries";
@@ -14,6 +14,7 @@ import VoiceRecording from "./VoiceRecording";
 const Home = () => {
   const { language } = useLanguage();
   const t = translations[language] || translations.EN;
+  const { requireMobile } = useMobileGate();
   const [wordIndex, setWordIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
@@ -62,7 +63,6 @@ const Home = () => {
 
   return (
     <>
-      <Navbar />
       <section className={styles.heroSection} aria-label="Hero">
         <video
           className={styles.videoBackground}
@@ -96,7 +96,7 @@ const Home = () => {
           </p>
 
           <div className={styles.btnGroup}>
-            <button onClick={() => setShowVoice(true)} className={styles.ctaBtnPrimary}>
+            <button onClick={() => requireMobile(() => setShowVoice(true))} className={styles.ctaBtnPrimary}>
               {t.home.startForFree}
             </button>
           </div>

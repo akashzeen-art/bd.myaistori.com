@@ -7,8 +7,8 @@ import { FaMicrophone, FaEdit, FaArrowLeft, FaArrowRight } from "react-icons/fa"
 import { sendStoryPrompt } from "../api/stories";
 import StoryModal from "./StoryModal";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useMobileGate } from "../contexts/MobileGateContext";
 import { translations } from "../translations/index";
-import Navbar from "./Navbar";
 
 // Import all story images
 import actionJpg from "../assets/Images/action.jpg";
@@ -64,6 +64,7 @@ import threeWishesImg from "../assets/Images/FairyTale/The-Three-Wishes.jpg";
 
 const VoiceRecording = ({ onBack }) => {
   const { language } = useLanguage();
+  const { requireMobile } = useMobileGate();
   const t = translations[language] || translations.EN;
   const [showInput, setShowInput] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -399,9 +400,7 @@ const VoiceRecording = ({ onBack }) => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     
-    // Map language codes for speech recognition
-    const langMap = { 'EN': 'en-US', 'FR': 'fr-FR', 'ES': 'es-ES', 'AR': 'ar-SA' };
-    recognition.lang = langMap[language] || 'en-US';
+    recognition.lang = language === 'BN' ? 'bn-BD' : 'en-US';
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
     recognition.continuous = false;
@@ -429,8 +428,7 @@ const VoiceRecording = ({ onBack }) => {
       const prompt = (transcriptRef.current || inputValue).trim();
       if (prompt) {
         setIsGenerating(true);
-        const langCode = { 'EN': 'en', 'FR': 'fr', 'ES': 'es', 'AR': 'ar', 'CS': 'cs', 'PL': 'pl', 'PT': 'pt' }[language] || 'en';
-        const text = await sendStoryPrompt(prompt, langCode);
+        const text = await sendStoryPrompt(prompt, language.toLowerCase());
         setIsGenerating(false);
         if (text) {
           setModalTitle(prompt);
@@ -462,7 +460,6 @@ const VoiceRecording = ({ onBack }) => {
 
   return (
     <>
-      <Navbar />
       <video className={styles.videoBackground} src={HERO_VIDEO_URL} autoPlay muted loop playsInline />
       <div className={styles.videoOverlay} />
       <div className={styles.voicePage}>
@@ -537,10 +534,12 @@ const VoiceRecording = ({ onBack }) => {
             <div
               key={story.id}
               className={styles.storyCard}
-              onClick={() => {
-                setInputValue(`Create a ${story.category} story about ${story.title}`);
+              onClick={() => requireMobile(() => {
+                setInputValue(language === "BN"
+                  ? `"${story.title}" নিয়ে একটি ${t.storyModal.categories[story.category] || story.category} গল্প তৈরি করুন`
+                  : `Create a ${story.category} story about ${story.title}`);
                 setShowInput(true);
-              }}
+              })}
             >
               <div className={styles.storyImageContainer}>
                 <img
@@ -589,8 +588,7 @@ const VoiceRecording = ({ onBack }) => {
               const prompt = inputValue.trim();
               if (!prompt) return;
               setIsGenerating(true);
-              const langCode = { 'EN': 'en', 'FR': 'fr', 'ES': 'es', 'AR': 'ar', 'CS': 'cs', 'PL': 'pl', 'PT': 'pt' }[language] || 'en';
-              const text = await sendStoryPrompt(prompt, langCode);
+              const text = await sendStoryPrompt(prompt, language.toLowerCase());
               setIsGenerating(false);
               if (text) {
                 setModalTitle(prompt);

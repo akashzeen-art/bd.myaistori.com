@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap/dist/js/bootstrap.bundle.min.js"
 import './App.css'
 import { LanguageProvider } from './contexts/LanguageContext'
+import { MobileGateProvider } from './contexts/MobileGateContext'
 import Navbar from './Components/Navbar'
 import Footer from './Components/Footer'
 import Home from './Components/Home'
@@ -14,12 +15,17 @@ import Pricing from './Components/Pricing'
 import VoiceRecording from './Components/VoiceRecording'
 import Preloader from './Components/Preloader'
 import TermsOfService from './Components/TermsOfService'
+import LandingPage from './Components/LandingPage'
+import OtpPage from './Components/OtpPage'
+import ThankYouPage from './Components/ThankYouPage'
 
 function App() {
   return (
     <BrowserRouter>
       <LanguageProvider>
-        <AppContent />
+        <MobileGateProvider>
+          <AppContent />
+        </MobileGateProvider>
       </LanguageProvider>
     </BrowserRouter>
   )
@@ -72,6 +78,9 @@ function AppContent() {
         <Route path="/faq" element={<FAQ />} />
         <Route path="/voice" element={<VoiceRecording />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/lp-page" element={<LandingPage />} />
+        <Route path="/otp" element={<OtpPage />} />
+        <Route path="/thankyou" element={<ThankYouPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <Footer />

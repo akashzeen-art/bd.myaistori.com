@@ -1,11 +1,15 @@
 import React from "react";
 import styles from "./TransformSection.module.css";
+import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useMobileGate } from "../contexts/MobileGateContext";
 import { translations } from "../translations/index";
 
 const TransformSection = () => {
   const { language } = useLanguage();
   const t = translations[language] || translations.EN;
+  const { requireMobile } = useMobileGate();
+  const navigate = useNavigate();
   return (
     <section className={styles.wrapper} aria-labelledby="transform-title">
       <div className={styles.container}>
@@ -19,7 +23,7 @@ const TransformSection = () => {
           {t.transformSection.subtitle}
         </p>
         <div className={styles.ctaRow}>
-          <a href="#start" className={styles.ctaPrimary}>{t.transformSection.generateStory}</a>
+          <a href="/voice" className={styles.ctaPrimary} onClick={(e) => { e.preventDefault(); requireMobile(() => navigate("/voice")); }}>{t.transformSection.generateStory}</a>
         </div>
       </div>
       <div className={styles.orb} aria-hidden="true" />

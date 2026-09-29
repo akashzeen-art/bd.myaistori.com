@@ -1,11 +1,15 @@
 import React from "react";
 import styles from "./Pricing.module.css";
 import { FaCheck, FaStar, FaCrown, FaRocket } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useMobileGate } from "../contexts/MobileGateContext";
 import { translations } from "../translations/index";
 
 const Pricing = () => {
   const { language } = useLanguage();
+  const { requireMobile } = useMobileGate();
+  const navigate = useNavigate();
   const t = translations[language] || translations.EN;
   
   return (
@@ -81,7 +85,7 @@ const Pricing = () => {
           <h3>{t.pricing.ctaTitle}</h3>
           <p>{t.pricing.ctaSubtitle}</p>
           <div className={styles.ctaButtons}>
-            <a href="/" className={styles.primaryBtn}>{t.pricing.startForFree}</a>
+            <a href="/voice" className={styles.primaryBtn} onClick={(e) => { e.preventDefault(); requireMobile(() => navigate("/voice")); }}>{t.pricing.startForFree}</a>
             <a href="/features" className={styles.secondaryBtn}>{t.pricing.learnMore}</a>
           </div>
         </div>

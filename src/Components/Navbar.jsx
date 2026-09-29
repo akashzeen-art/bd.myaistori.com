@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import styles from "./Navbar.module.css";
 import logo from "../assets/Images/logo.png";
-import { FaBell, FaUserCircle } from "react-icons/fa";
+import { FaUserCircle } from "react-icons/fa";
 import { useLanguage } from "../contexts/LanguageContext";
 import { translations } from "../translations/index";
 import AuthModal from "./AuthModal";
@@ -62,7 +62,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className={`navbar navbar-expand-lg ${styles.navbarCustom} ${isExpanded ? styles.navbarExpanded : ''}`}>
+      <nav data-bs-theme="dark" className={`navbar navbar-expand-lg navbar-dark ${styles.navbarCustom} ${isExpanded ? styles.navbarExpanded : ''}`}>
         <div className="container-fluid">
 
           {/* Left - Logo */}
@@ -73,7 +73,7 @@ const Navbar = () => {
 
           {/* Mobile Menu Toggle */}
           <button
-            className="navbar-toggler"
+            className={`navbar-toggler ${styles.toggler}`}
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#navbarNav"
@@ -106,11 +106,6 @@ const Navbar = () => {
             <ul className={`navbar-nav ms-lg-auto align-items-lg-center ${styles.rightNav}`}>
               {/* Icons Row for Mobile */}
               <div className={styles.iconsRow}>
-                {/* Notification */}
-                <li className={`nav-item ${styles.iconItem}`}>
-                  <FaBell className={styles.icon} />
-                </li>
-                
                 {/* Profile Dropdown */}
                 {isLoggedIn ? (
                   <li className="nav-item dropdown">
@@ -155,7 +150,7 @@ const Navbar = () => {
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                   >
-                    {language} ▾
+                    {language === "BN" ? "বাংলা" : "English"} ▾
                   </button>
                   <ul className={`dropdown-menu dropdown-menu-end ${styles.customDropdown}`} aria-labelledby="langDropdown">
                     <li>
@@ -164,71 +159,21 @@ const Navbar = () => {
                         className={`dropdown-item ${styles.dropdownItem}`}
                         onClick={() => changeLanguage("EN")}
                       >
-                        EN
+                        English
                       </button>
                     </li>
                     <li>
                       <button
                         type="button"
                         className={`dropdown-item ${styles.dropdownItem}`}
-                        onClick={() => changeLanguage("FR")}
+                        onClick={() => changeLanguage("BN")}
                       >
-                        FR
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        type="button"
-                        className={`dropdown-item ${styles.dropdownItem}`}
-                        onClick={() => changeLanguage("ES")}
-                      >
-                        ES
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        type="button"
-                        className={`dropdown-item ${styles.dropdownItem}`}
-                        onClick={() => changeLanguage("AR")}
-                      >
-                        AR
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        type="button"
-                        className={`dropdown-item ${styles.dropdownItem}`}
-                        onClick={() => changeLanguage("PL")}
-                      >
-                        PL
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        type="button"
-                        className={`dropdown-item ${styles.dropdownItem}`}
-                        onClick={() => changeLanguage("PT")}
-                      >
-                        PT
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        type="button"
-                        className={`dropdown-item ${styles.dropdownItem}`}
-                        onClick={() => changeLanguage("CS")}
-                      >
-                        CS
+                        বাংলা
                       </button>
                     </li>
                   </ul>
                 </li>
               </div>
-              
-              {/* Start for Free */}
-              <li className="nav-item">
-                <a className={`btn ${styles.ctaButton}`} href="/voice">{t.navbar.startForFree}</a>
-              </li>
             </ul>
           </div>
         </div>
