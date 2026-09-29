@@ -19,6 +19,8 @@ import LandingPage from './Components/LandingPage'
 import OtpPage from './Components/OtpPage'
 import ThankYouPage from './Components/ThankYouPage'
 
+const VERIFICATION_PATHS = ['/lp-page', '/otp', '/thankyou']
+
 function App() {
   return (
     <BrowserRouter>
@@ -67,9 +69,11 @@ function AppContent() {
     return <Preloader fadeOut={fadeOut} />
   }
 
+  const isVerificationPage = VERIFICATION_PATHS.includes(location.pathname)
+
   return (
     <>
-      <Navbar />
+      {!isVerificationPage && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/features" element={<Features />} />
@@ -83,7 +87,7 @@ function AppContent() {
         <Route path="/thankyou" element={<ThankYouPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      <Footer />
+      {!isVerificationPage && <Footer />}
     </>
   )
 }

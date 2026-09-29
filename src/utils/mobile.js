@@ -1,6 +1,6 @@
 export const COUNTRY_CODE = "+880";
-// Bangladeshi mobile numbers: 1 followed by an operator digit (3-9) and 8 more digits
-export const BD_MOBILE_PATTERN = /^1[3-9]\d{8}$/;
+// 10 digits once the country code and leading 0 are removed (01XXXXXXXXX -> 1XXXXXXXXX)
+export const BD_MOBILE_PATTERN = /^\d{10}$/;
 
 const VERIFIED_KEY = "verifiedMobile";
 const PENDING_KEY = "pendingMobile";
